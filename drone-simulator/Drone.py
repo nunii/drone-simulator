@@ -3,7 +3,7 @@ from Board import Board
 import pygame
 
 # The snake is a list of SnakeBody parts.
-class Snake(list):
+class Drone(list):
 
     factor = 10
 
