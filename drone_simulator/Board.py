@@ -1,21 +1,14 @@
 import pygame
+from Colors import Colors
 import pandas as pd
 
 
 # This class represents the game board.
 # It uses the pygame library.
 class Board:
-    d_white = (250, 250, 250)
-    blue_black = (50, 50, 50)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    red = (255, 0, 0)
-    teal = (0, 128, 128)
-    gold = (255, 215, 0)
-
     def __init__(self, width, height):
         pygame.init()
-        pygame.display.set_caption('Drone')
+        pygame.display.set_caption('Drone Simulator')
         self.GAME_display = pygame.display.set_mode((width + 20, height + 20))
         self.clean()
         self.borders(width, height)
@@ -24,20 +17,28 @@ class Board:
         self.height = height
 
     def clean(self):
-        self.GAME_display.fill(Board.white)
+        self.GAME_display.fill(Colors.white)
         pygame.display.update()
 
     # Rect(Surface, color, [top left point (x,y) , width, height]) -> Rect
     def borders(self, height, width):
         # top line
-        pygame.draw.rect(self.GAME_display, Board.black, [0, 0, height + 20, 10])
+        pygame.draw.rect(self.GAME_display, Colors.black, [0, 0, height + 20, 10])
         # bottom line
-        pygame.draw.rect(self.GAME_display, Board.black, [0, width + 10, height + 20, 10])
+        pygame.draw.rect(self.GAME_display, Colors.black, [0, width + 10, height + 20, 10])
         # left line
-        pygame.draw.rect(self.GAME_display, Board.black, [0, 0, 10, height + 20])
+        pygame.draw.rect(self.GAME_display, Colors.black, [0, 0, 10, height + 20])
         # right line
-        pygame.draw.rect(self.GAME_display, Board.black, [height + 10, 0, 10, width + 20])
+        pygame.draw.rect(self.GAME_display, Colors.black, [height + 10, 0, 10, width + 20])
         pygame.display.update()
+
+    def get_screen(self):
+        """
+        get game screen.
+        :return: a game screen.
+        :rtype: a pygame screen object.
+        """
+        return self.GAME_display
 
     def close(self):
         print("preparing to exit...")
