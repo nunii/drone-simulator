@@ -1,14 +1,14 @@
 import pygame
-from Colors import Colors
-import pandas as pd
 
 
 # This class represents the game board.
 # It uses the pygame library.
 class Board:
-    def __init__(self, width, height):
+    def __init__(self, width, height, color, borders_color):
         pygame.init()
         pygame.display.set_caption('Drone Simulator')
+        self.color = color
+        self.borders_color = borders_color
         self.GAME_display = pygame.display.set_mode((width + 20, height + 20))
         self.clean()
         self.borders(width, height)
@@ -17,24 +17,25 @@ class Board:
         self.height = height
 
     def clean(self):
-        self.GAME_display.fill(Colors.white)
+        self.GAME_display.fill(self.color)
         pygame.display.update()
 
     # Rect(Surface, color, [top left point (x,y) , width, height]) -> Rect
     def borders(self, height, width):
         # top line
-        pygame.draw.rect(self.GAME_display, Colors.black, [0, 0, height + 20, 10])
+        pygame.draw.rect(self.GAME_display, self.borders_color, [0, 0, height + 20, 10])
         # bottom line
-        pygame.draw.rect(self.GAME_display, Colors.black, [0, width + 10, height + 20, 10])
+        pygame.draw.rect(self.GAME_display, self.borders_color, [0, width + 10, height + 20, 10])
         # left line
-        pygame.draw.rect(self.GAME_display, Colors.black, [0, 0, 10, height + 20])
+        pygame.draw.rect(self.GAME_display, self.borders_color, [0, 0, 10, height + 20])
         # right line
-        pygame.draw.rect(self.GAME_display, Colors.black, [height + 10, 0, 10, width + 20])
+        pygame.draw.rect(self.GAME_display, self.borders_color, [height + 10, 0, 10, width + 20])
         pygame.display.update()
 
     def get_screen(self):
         """
         get game screen.
+
         :return: a game screen.
         :rtype: a pygame screen object.
         """
@@ -47,10 +48,10 @@ class Board:
 
     def pop_exit_window(self):
         pygame.font.init()  # you have to call this at the start,
-
+        from drone_simulator import Colors
         myfont = pygame.font.SysFont('Comic Sans MS', 20)
         text = myfont.render('To restart press C, Exit press X', False, (50, 50, 50))
-        text2 = myfont.render('Your final score is: %d ' % tuple([self.game_score]), False, Board.red)
+        text2 = myfont.render('Your final score is: %d ' % tuple([self.game_score]), False, Colors.red)
         self.GAME_display.blit(text, (10, self.height / 2 + 50))
         self.GAME_display.blit(text2, (self.width / 2 - 60, self.height / 2))
         pygame.display.update()
