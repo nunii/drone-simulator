@@ -46,8 +46,7 @@ def main():
             # delete old position.
             drone.delete_old_rect(game_display=game_display.get_screen(), coordination=drone_coordinate,
                                   color=Colors.white)
-            # update odometer position.
-            odometer.move(drone_coordinate)
+            pygame.PixelArray(game_display.get_screen()).replace(color=Colors.red, repcolor=Colors.white)
         # update drone coordinates
         drone_coordinate = new_drone_coordinate
         # draw the drone over the screen.

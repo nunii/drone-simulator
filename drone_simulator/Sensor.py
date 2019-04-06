@@ -20,8 +20,12 @@ class Sensor:
         :return: coordinates of the observed bounds (or wall).
         :rtype: tuple
         """
+        # check if x and y in the maze bounds.
+        if maze.get_height() < round(self.x_position) or maze.get_width() < round(self.y_position):
+            return round(self.x_position), round(self.y_position)
+        # check if a sensor meet a bounds.
         if maze.get_at((round(self.x_position), round(self.y_position))) == self.bounds_color:
-            return self.x_position + 5, self.y_position + 5
+            return round(self.x_position), round(self.y_position)
         return None
 
     def draw(self, game_display):

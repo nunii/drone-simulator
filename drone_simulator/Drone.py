@@ -28,32 +28,32 @@ class Drone:
             self.rect.move_ip(-1, 0)
             # update x position
             self.x_position -= 1
-            # # move sensor.
-            # self.odometer.move(x_dir=self.x_position, y_dir=self.y_position)
+            # update odometer position.
+            self.odometer.move((self.x_position, self.y_position))
             return True
         # if right key pressed, go right.
         if key[pygame.K_RIGHT]:
             self.rect.move_ip(1, 0)
             # update x position
             self.x_position += 1
-            # # move sensor.
-            # self.odometer.move(x_dir=self.x_position, y_dir=self.y_position)
+            # update odometer position.
+            self.odometer.move((self.x_position, self.y_position))
             return True
         # if up key pressed,up go left
         if key[pygame.K_UP]:
             self.rect.move_ip(0, -1)
             # update y position
             self.y_position -= 1
-            # # move sensor.
-            # self.odometer.move(x_dir=self.x_position, y_dir=self.y_position)
+            # update odometer position.
+            self.odometer.move((self.x_position, self.y_position))
             return True
         # if down key pressed, go down.
         if key[pygame.K_DOWN]:
             self.rect.move_ip(0, 1)
             # update y position
             self.y_position += 1
-            # # move sensor.
-            # self.odometer.move(x_dir=self.x_position, y_dir=self.y_position)
+            # update odometer position.
+            self.odometer.move((self.x_position, self.y_position))
             return True
         return False
 
@@ -79,7 +79,6 @@ class Drone:
         :return: true if we reach the bounds (or wall).
         :rtype: boolean
         """
-        print('check')
         # check sensor.
         odometer_info = self.odometer.check_bounds(maze=maze)
         # if sensor find a bounds.
@@ -120,7 +119,7 @@ class Drone:
         :param game_display: a main screen.
         :return:
         """
-        bounds = pygame.Rect((coordination[0], coordination[1], 15, 15))
+        bounds = pygame.Rect((coordination[0], coordination[1], 10, 10))
         pygame.draw.rect(game_display, self.bounds_color, bounds)
 
     @staticmethod
