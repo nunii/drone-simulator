@@ -2,7 +2,10 @@ from drone_simulator import Drone
 from drone_simulator import Board
 from drone_simulator import Colors
 import pygame
-import numpy as np
+import os
+
+# project root path.
+root_path = os.path.dirname(os.path.dirname(__file__))
 
 
 def main():
@@ -13,9 +16,11 @@ def main():
     window_height = 610
     # initialize Board and Drone
     game_display = Board(window_width, window_height)
-    drone = Drone(20, 20, Colors.teal)
+    drone = Drone(20, 20, Colors.teal, Colors.maze_black)
     # drone coordinate (x, y)
     drone_coordinate = (20, 20)
+    # read maze image.
+    maze = pygame.image.load(os.path.join(root_path, 'mazes', 'maze-01.png'))
 
     while True:  # while the program runs.
         # get events and handle.
@@ -26,7 +31,8 @@ def main():
         # draw the drone over the screen.
         drone.draw(game_display=game_display.get_screen())
         # drone keys handle. (move the drone while keys pressed)
-        drone.handle_keys()
+        drone.handle_keys(maze=maze, game_display=game_display.get_screen())
+        # print(maze.get_at(drone_coordinate))
         # get drone updated coordinates
         new_drone_coordinate = drone.get_position()
         # the drone is change position
@@ -36,6 +42,8 @@ def main():
                                   color=Colors.white)
         # update drone coordinates
         drone_coordinate = new_drone_coordinate
+        # draw the drone over the screen.
+        drone.draw(game_display=game_display.get_screen())
         # update screen display.
         pygame.display.update()
         # update layers over screen.
