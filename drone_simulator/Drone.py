@@ -1,5 +1,6 @@
 import pygame
 from DroneState import DroneState
+from math import cos, sin, radians, inf
 
 
 class Drone:
@@ -97,6 +98,18 @@ class Drone:
             lidar.move(coordinate=self.get_position())
             lidar.draw(game_display=game_display)
 
+    def calc_x(self, step):
+        return step + cos(radians(self.yaw)) * self.radius
+
+    def calc_y(self, step):
+        return step + sin(radians(self.yaw)) * self.radius
+
+    def move(self, game_display, step):
+        self.x_position += self.speed * self.calc_x(step=step)
+        self.y_position += self.speed * self.calc_y(step=step)
+        # update odometer position.
+        self.change_lidars_positions(game_display=game_display)
+
     def handle_keys(self, maze, game_display, key):
         """
         handle keys, move a drone by the pressed key.
@@ -118,12 +131,13 @@ class Drone:
         if key[pygame.K_UP]:
             # update y position
             self.speed += 1 if self.speed < 3 else 0
-            # update odometer position.
-            self.change_lidars_positions(game_display=game_display)
+            self.move(game_display=game_display, step=3)
+            self.check_bounds(maze=maze, game_display=game_display)
             return True
         # if down key pressed, go down.
         if key[pygame.K_DOWN]:
             self.speed -= 1 if self.speed > 0 else 0
+            self.move(game_display=game_display, step=3)
             # update odometer position.
             self.change_lidars_positions(game_display=game_display)
             return True
