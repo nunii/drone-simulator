@@ -1,61 +1,44 @@
 import pygame
+from DroneState import DroneState
 
 
 class Drone:
-    factor = 15
+    MAX_ACC = 2  # meter / sec^2
+    MAX_SPEED = 3  # meter / sec
+    MAX_YAW_SPEED = 180  # deg/sec  (aka  1.0 PI)
+    Max_FLIGHT_TIME = 60 * 5  # 5 Minute
+    DT = 1.0/50  # ms ==> 50Hz
 
-    def __init__(self, start_x, start_y, color, bounds_color, odometer):
-        self.color = color
-        self.bounds_color = bounds_color
+    def __init__(self, start_x, start_y, color, bounds_color, lidars):
+        self.state = DroneState
+        self.yaw = 0
+        self.yaw_speed = 0
+        self.mode = self.state.GROUND
+        self.speed = 0
+        self.acc = 0
+
+        self.time_in_air = 0
+        self.error_case = 0
+        self.score = 0
+
+        self.radius = 3
         self.x_position = start_x
         self.y_position = start_y
-        self.rect = pygame.Rect((self.x_position, self.y_position, Drone.factor, Drone.factor))
-        self.odometer = odometer
+        self.lidars = lidars
 
-    def handle_keys(self, maze, game_display):
-        """
-        handle keys, move a drone by the pressed key.
+        self.color = color
+        self.bounds_color = bounds_color
 
-        :return: true if the drone moves, otherwise false.
-        :rtype: boolean
+    def rotate(self, direction):
         """
-        key = pygame.key.get_pressed()
-        # check if the key pressed moved the drone to bounds.
-        if self.check_bounds(maze=maze, key_pressed=key, game_display=game_display):
-            return False
-        # if left key pressed, go left.
-        if key[pygame.K_LEFT]:
-            self.rect.move_ip(-1, 0)
-            # update x position
-            self.x_position -= 1
-            # update odometer position.
-            self.odometer.move((self.x_position, self.y_position))
-            return True
-        # if right key pressed, go right.
-        if key[pygame.K_RIGHT]:
-            self.rect.move_ip(1, 0)
-            # update x position
-            self.x_position += 1
-            # update odometer position.
-            self.odometer.move((self.x_position, self.y_position))
-            return True
-        # if up key pressed,up go left
-        if key[pygame.K_UP]:
-            self.rect.move_ip(0, -1)
-            # update y position
-            self.y_position -= 1
-            # update odometer position.
-            self.odometer.move((self.x_position, self.y_position))
-            return True
-        # if down key pressed, go down.
-        if key[pygame.K_DOWN]:
-            self.rect.move_ip(0, 1)
-            # update y position
-            self.y_position += 1
-            # update odometer position.
-            self.odometer.move((self.x_position, self.y_position))
-            return True
-        return False
+
+        :param direction:
+        :return:
+        """
+        self.yaw += direction * self.yaw_speed
+        for lidar in self.lidars:
+            lidar.angle = self.yaw
+            lidar.draw()
 
     def get_position(self):
         """
@@ -66,42 +49,25 @@ class Drone:
         """
         return self.x_position, self.y_position
 
-    def update(self):
-        pass
-
-    def check_bounds(self, maze, key_pressed, game_display):
+    def check_bounds(self, maze, game_display):
         """
         check if the drone get to bounds.
 
-        :param game_display:
-        :param key_pressed: a key pressed.
+        :param game_display: a screen object.
         :param maze: a background maze.
         :return: true if we reach the bounds (or wall).
         :rtype: boolean
         """
-        # check sensor.
-        odometer_info = self.odometer.check_bounds(maze=maze)
-        # if sensor find a bounds.
-        if odometer_info:
-            # draw a bounds.
-            self.draw_bounds(game_display=game_display, coordination=odometer_info)
+        for lidar in self.lidars:
+            # check sensor.
+            lidar_info = lidar.check_bounds(maze=maze)
+            # if sensor find a bounds.
+            if lidar_info:
+                # draw a bounds.
+                self.draw_bounds(game_display=game_display, coordination=lidar_info)
 
-        if key_pressed[pygame.K_LEFT] and maze.get_at((self.x_position - 1, self.y_position)) == self.bounds_color:
-            # draw a bounds.
-            self.draw_bounds(game_display=game_display, coordination=(self.x_position - 5, self.y_position))
-            return True
-        if key_pressed[pygame.K_RIGHT] and maze.get_at((self.x_position + 1, self.y_position)) == self.bounds_color:
-            # draw a bounds.
-            self.draw_bounds(game_display=game_display, coordination=(self.x_position + 2, self.y_position))
-            return True
-        if key_pressed[pygame.K_UP] and maze.get_at((self.x_position, self.y_position - 5)) == self.bounds_color:
-            # draw a bounds.
-            self.draw_bounds(game_display=game_display, coordination=(self.x_position, self.y_position - 2))
-            return True
-        if key_pressed[pygame.K_DOWN] and maze.get_at((self.x_position, self.y_position + 5)) == self.bounds_color:
-            # draw a bounds.
-            self.draw_bounds(game_display=game_display, coordination=(self.x_position, self.y_position + 5))
-            return True
+        if maze.get_at((self.x_position, self.y_position)) == self.bounds_color:
+            self.error_case += 1
         return False
 
     def draw(self, game_display):
@@ -110,7 +76,7 @@ class Drone:
         :param game_display: a pygame surface (screen).
         :return:
         """
-        pygame.draw.rect(game_display, self.color, self.rect)
+        pygame.draw.circle(game_display, self.color, self.get_position(), self.radius)
 
     def draw_bounds(self, game_display, coordination):
         """draw a bounds by the drone observation.
@@ -119,17 +85,47 @@ class Drone:
         :param game_display: a main screen.
         :return:
         """
-        bounds = pygame.Rect((coordination[0], coordination[1], 10, 10))
-        pygame.draw.rect(game_display, self.bounds_color, bounds)
+        pygame.draw.circle(game_display, self.bounds_color, coordination, 3)
 
-    @staticmethod
-    def delete_old_rect(game_display, coordination, color):
-        """delete old drone over the screen.
+    def change_lidars_positions(self, game_display):
+        """change lidars positions and draw.
 
-        :param color: a color to draw.
-        :param coordination: a drone old coordination, tuple.
-        :param game_display: a pygame surface (screen).
+        :param game_display:
         :return:
         """
-        background = pygame.Rect((coordination[0], coordination[1], Drone.factor, Drone.factor))
-        pygame.draw.rect(game_display, color, background)
+        for lidar in self.lidars:
+            lidar.move(coordinate=self.get_position())
+            lidar.draw(game_display=game_display)
+
+    def handle_keys(self, maze, game_display, key):
+        """
+        handle keys, move a drone by the pressed key.
+
+        :return: true if the drone moves, otherwise false.
+        :rtype: boolean
+        """
+        # if left key pressed, go left.
+        if key[pygame.K_LEFT]:
+            self.rotate(-1)
+            self.check_bounds(maze=maze, game_display=game_display)
+            return True
+        # if right key pressed, go right.
+        if key[pygame.K_RIGHT]:
+            self.rotate(1)
+            self.check_bounds(maze=maze, game_display=game_display)
+            return True
+        # if up key pressed,up go left
+        if key[pygame.K_UP]:
+            # update y position
+            self.speed += 1 if self.speed < 3 else 0
+            # update odometer position.
+            self.change_lidars_positions(game_display=game_display)
+            return True
+        # if down key pressed, go down.
+        if key[pygame.K_DOWN]:
+            self.speed -= 1 if self.speed > 0 else 0
+            # update odometer position.
+            self.change_lidars_positions(game_display=game_display)
+            return True
+        return False
+
