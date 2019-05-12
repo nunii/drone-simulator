@@ -2,7 +2,6 @@ from drone_simulator import Drone
 from drone_simulator import Board
 from drone_simulator import Colors
 from drone_simulator import Sensor
-from math import cos, sin
 import pygame
 import os
 
@@ -23,8 +22,11 @@ def main():
     y = 8
     # initialize Sensors
     lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_left = Sensor(start_x=x, start_y=y, angle=-315, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
+    lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
-    drone = Drone(start_x=20, start_y=20, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidar)
+    drone = Drone(start_x=20, start_y=20, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars)
     # drone coordinate (x, y)
     drone_coordinate = drone.get_position()
     # read maze image.
