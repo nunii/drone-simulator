@@ -5,6 +5,9 @@ from drone_simulator import Sensor
 import pygame
 import os
 
+#import sys
+#sys.setrecursionlimit(100000)  # need to delete this and fix the recursion.
+
 # project root path.
 root_path = os.path.dirname(os.path.dirname(__file__))
 
@@ -18,15 +21,15 @@ def main():
     # initialize Drone
     game_display = Board(width=window_width, height=window_height, color=Colors.white, borders_color=Colors.black)
     # start position
-    x = 8
-    y = 8
+    x = 20
+    y = 20
     # initialize Sensors
     lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
     lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
     lidar_left = Sensor(start_x=x, start_y=y, angle=-315, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
-    drone = Drone(start_x=20, start_y=20, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars)
+    drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
     # drone coordinate (x, y)
     drone_coordinate = drone.get_position()
     # read maze image.

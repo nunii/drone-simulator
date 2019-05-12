@@ -14,12 +14,12 @@ class Sensor:
         self.radius = radius
         self.last_bound = tuple()
 
-    @property
+    #@property
     def angle(self):
         return self.angle
 
-    @angle.setter
-    def angle(self, angle):
+    #@angle.setter
+    def add_angle(self, angle):
         self.angle += angle
         if self.angle >= 360:
             self.angle = 0
@@ -44,7 +44,7 @@ class Sensor:
 
         :param maze: a background maze.
         :return: coordinates of the observed bounds (or wall).
-        :rtype: tuple
+        :rtype: tuple or string
         """
         # check if x and y in the maze bounds.
         if maze.get_height() < round(self.x_pos_start * self.radius) \

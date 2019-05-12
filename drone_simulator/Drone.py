@@ -3,6 +3,7 @@ from DroneState import DroneState
 from math import cos, sin, radians, inf
 
 
+
 class Drone:
     MAX_ACC = 2  # meter / sec^2
     MAX_SPEED = 3  # meter / sec
@@ -10,7 +11,7 @@ class Drone:
     Max_FLIGHT_TIME = 60 * 5  # 5 Minute
     DT = 1.0/50  # ms ==> 50Hz
 
-    def __init__(self, start_x, start_y, color, bounds_color, lidars):
+    def __init__(self, start_x, start_y, color, bounds_color, lidars, game_display):
         self.state = DroneState
         self.yaw = 0
         self.yaw_speed = 0
@@ -29,6 +30,7 @@ class Drone:
 
         self.color = color
         self.bounds_color = bounds_color
+        self.game_display = game_display  ## added for testings
 
     def rotate(self, direction):
         """
@@ -39,7 +41,7 @@ class Drone:
         self.yaw += direction * self.yaw_speed
         for lidar in self.lidars:
             lidar.angle = self.yaw
-            lidar.draw()
+            lidar.draw(self.game_display.get_screen())
 
     def get_position(self):
         """
@@ -48,7 +50,7 @@ class Drone:
         :return: a coordinates of the drone.
         :rtype: tuple. (x_position, y_position)
         """
-        return self.x_position, self.y_position
+        return int(self.x_position), int(self.y_position)
 
     def check_bounds(self, maze, game_display):
         """
@@ -63,11 +65,11 @@ class Drone:
             # check sensor.
             lidar_info = lidar.check_bounds(maze=maze)
             # if sensor find a bounds.
-            if lidar_info:
+            if type(lidar_info) is tuple:
                 # draw a bounds.
                 self.draw_bounds(game_display=game_display, coordination=lidar_info)
 
-        if maze.get_at((self.x_position, self.y_position)) == self.bounds_color:
+        if maze.get_at((int(self.x_position), int(self.y_position))) == self.bounds_color:
             self.error_case += 1
         return False
 
@@ -77,6 +79,7 @@ class Drone:
         :param game_display: a pygame surface (screen).
         :return:
         """
+        #print(self.get_position())
         pygame.draw.circle(game_display, self.color, self.get_position(), self.radius)
 
     def draw_bounds(self, game_display, coordination):
