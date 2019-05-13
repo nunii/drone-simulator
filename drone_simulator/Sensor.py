@@ -10,27 +10,26 @@ class Sensor:
         self.bounds_color = bounds_color
         self.x_pos_start = start_x
         self.y_pos_start = start_y
+
+        if angle < 0:
+            angle = 360 + angle
+
         self.angle = angle
         self.radius = radius
         self.last_bound = tuple()
 
-    #@property
-    def angle(self):
-        return self.angle
-
-    #@angle.setter
     def add_angle(self, angle):
         self.angle += angle
         if self.angle >= 360:
-            self.angle = 0
-        if self.angle < 0:
-            self.angle = 359
+            self.angle = self.angle % 360
+        elif self.angle < 0:
+            self.angle = 360 + self.angle
 
     def calc_x_end(self):
         return self.x_pos_start + cos(radians(self.angle)) * self.radius
 
     def calc_y_end(self):
-        return self.x_pos_start + sin(radians(self.angle)) * self.radius
+        return self.y_pos_start + sin(radians(self.angle)) * self.radius
 
     def get_cord_start(self):
         return round(self.x_pos_start), round(self.y_pos_start)
@@ -50,12 +49,13 @@ class Sensor:
         if maze.get_height() < round(self.x_pos_start * self.radius) \
                 or maze.get_width() < round(self.y_pos_start * self.radius):
             self.last_bound = maze.get_height(), maze.get_width()
-            return self.last_bound
 
         # check if a sensor meet a bounds.
-        for dest in range(1, self.radius + 1):
-            if maze.get_at((round(self.x_pos_start + dest), round(self.y_pos_start + dest))) == self.bounds_color:
-                self.last_bound = round(self.x_pos_start), round(self.y_pos_start)
+        for dest in self.get_range():
+            print(dest)
+            if maze.get_at(dest) == self.bounds_color:
+                print("bound")
+                self.last_bound = dest
                 return self.last_bound
         return inf
 
@@ -65,7 +65,10 @@ class Sensor:
         :param game_display: a pygame surface (screen).
         :return:
         """
-        pygame.draw.line(game_display, self.color, self.get_cord_start(), self.get_cord_end())
+        if type(self.last_bound) is not tuple:
+            pygame.draw.line(game_display, self.color, self.get_cord_start(), self.last_bound)
+        else:
+            pygame.draw.line(game_display, self.color, self.get_cord_start(), self.get_cord_end())
 
     def move(self, coordinate):
         """move sensor.
@@ -75,3 +78,17 @@ class Sensor:
         """
         self.x_pos_start = coordinate[0]
         self.y_pos_start = coordinate[1]
+
+    def get_range(self):
+        """generate x,y range from x start, y start to end.
+
+        :return:
+        """
+        return [(abs(self.calc_x_by_radius(count) - self.x_pos_start), abs(self.calc_y_by_radius(count) - self.y_pos_start))
+                for count in range(1, self.radius+1)]
+
+    def calc_x_by_radius(self, radius):
+        return round(self.x_pos_start + cos(radians(self.angle)) * radius)
+
+    def calc_y_by_radius(self, radius):
+        return round(self.y_pos_start + sin(radians(self.angle)) * radius)

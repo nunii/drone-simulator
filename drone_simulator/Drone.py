@@ -14,7 +14,6 @@ class Drone:
     def __init__(self, start_x, start_y, color, bounds_color, lidars, game_display):
         self.state = DroneState
         self.yaw = 0
-        self.yaw_speed = 0
         self.mode = self.state.GROUND
         self.speed = 0
         self.acc = 0
@@ -38,9 +37,18 @@ class Drone:
         :param direction:
         :return:
         """
-        self.yaw += direction * self.yaw_speed
+
+        self.yaw += direction * self.speed
+
+        if self.yaw >= 360:
+            self.yaw = self.yaw % 360
+        elif self.yaw < 0:
+            self.yaw = 360 + self.yaw
+
+        print(self.yaw)
+
         for lidar in self.lidars:
-            lidar.angle = self.yaw
+            lidar.add_angle(direction*self.speed)
             lidar.draw(self.game_display.get_screen())
 
     def get_position(self):
@@ -50,7 +58,7 @@ class Drone:
         :return: a coordinates of the drone.
         :rtype: tuple. (x_position, y_position)
         """
-        return int(self.x_position), int(self.y_position)
+        return round(self.x_position), round(self.y_position)
 
     def check_bounds(self, maze, game_display):
         """
@@ -79,7 +87,6 @@ class Drone:
         :param game_display: a pygame surface (screen).
         :return:
         """
-        #print(self.get_position())
         pygame.draw.circle(game_display, self.color, self.get_position(), self.radius)
 
     def draw_bounds(self, game_display, coordination):
@@ -101,15 +108,15 @@ class Drone:
             lidar.move(coordinate=self.get_position())
             lidar.draw(game_display=game_display)
 
-    def calc_x(self, step):
-        return step + cos(radians(self.yaw)) * self.radius
+    def calc_x(self):
+        return cos(radians(self.yaw)) * self.radius
 
-    def calc_y(self, step):
-        return step + sin(radians(self.yaw)) * self.radius
+    def calc_y(self):
+        return sin(radians(self.yaw)) * self.radius
 
     def move(self, game_display, step):
-        self.x_position += self.speed * self.calc_x(step=step)
-        self.y_position += self.speed * self.calc_y(step=step)
+        self.x_position += self.speed * self.calc_x()
+        self.y_position += self.speed * self.calc_y()
         # update odometer position.
         self.change_lidars_positions(game_display=game_display)
 
@@ -141,8 +148,7 @@ class Drone:
         if key[pygame.K_DOWN]:
             self.speed -= 1 if self.speed > 0 else 0
             self.move(game_display=game_display, step=3)
-            # update odometer position.
-            self.change_lidars_positions(game_display=game_display)
+            self.check_bounds(maze=maze, game_display=game_display)
             return True
         return False
 

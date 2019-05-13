@@ -15,25 +15,25 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 def main():
     # initialize
     clock = pygame.time.Clock()
-    # windows size
-    window_width = 910
-    window_height = 610
+    # windows size by taking the image and get the height/width
+    from PIL import Image
+    img_path = root_path + "/mazes/"
+    img = Image.open(img_path+'p11.png')
+    window_width, window_height = img.size
     # initialize Drone
     game_display = Board(width=window_width, height=window_height, color=Colors.white, borders_color=Colors.black)
     # start position
-    x = 20
-    y = 20
+    x = 50
+    y = 70
     # initialize Sensors
-    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_left = Sensor(start_x=x, start_y=y, angle=-315, radius=3, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
     drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
-    # drone coordinate (x, y)
-    drone_coordinate = drone.get_position()
     # read maze image.
-    maze = pygame.image.load(os.path.join(root_path, 'mazes', 'maze-01.png'))
+    maze = pygame.image.load(os.path.join(root_path, 'mazes', 'p11.png'))
 
     while True:  # while the program runs.
         # get events and handle.
@@ -41,20 +41,17 @@ def main():
             # if clicked on the window's X.
             if event.type == pygame.QUIT:
                 pygame.quit()
-        # draw the drone over the screen.
-        drone.draw(game_display=game_display.get_screen())
+
         # drone keys handle. (move the drone while keys pressed)
         key = pygame.key.get_pressed()
         drone.handle_keys(maze=maze, game_display=game_display.get_screen(), key=key)
-        # get drone updated coordinates
-        drone.get_position()
         # draw the drone over the screen.
         drone.draw(game_display=game_display.get_screen())
         # update screen display.
         pygame.display.update()
         # update layers over screen.
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(10)
 
 
 if __name__ == "__main__":
