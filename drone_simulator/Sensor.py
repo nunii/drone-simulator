@@ -84,7 +84,7 @@ class Sensor:
 
         :return:
         """
-        return [(abs(self.calc_x_by_radius(count) - self.x_pos_start), abs(self.calc_y_by_radius(count) - self.y_pos_start))
+        return [(round(self.calc_x_by_radius(count)), round(self.calc_y_by_radius(count)))
                 for count in range(1, self.radius+1)]
 
     def calc_x_by_radius(self, radius):
