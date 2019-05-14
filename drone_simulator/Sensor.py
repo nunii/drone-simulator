@@ -17,6 +17,7 @@ class Sensor:
         self.angle = angle
         self.radius = radius
         self.last_bound = tuple()
+        self.last_3_bounds = [0, 0, 0]
 
     def add_angle(self, angle):
         self.angle += angle
@@ -45,15 +46,12 @@ class Sensor:
         :return: coordinates of the observed bounds (or wall).
         :rtype: tuple or string
         """
-        # check if x and y in the maze bounds.
-        # if maze.get_height() < round(self.x_pos_start * self.radius) \
-        #        or maze.get_width() < round(self.y_pos_start * self.radius):
-        #    self.last_bound = maze.get_height(), maze.get_width()
 
         # check if a sensor meet a bounds.
         for dest in self.get_range():
             if maze.get_at(dest) == self.bounds_color:
                 self.last_bound = dest
+                self.add_last_bound(dest)
                 return self.last_bound
         return inf
 
@@ -61,6 +59,7 @@ class Sensor:
         """draw Lidar over the screen.
 
         :param game_display: a pygame surface (screen).
+        :param maze:
         :return:
         """
         if self.check_bounds(maze) == () or not type(self.check_bounds(maze)) is tuple:
@@ -69,12 +68,8 @@ class Sensor:
         else:
             # edit the lidar beam length
             bound = self.check_bounds(maze)
-            print(bound)
-            lst = list(bound)
-            lst[0] -= 3
-            lst[1] -= 3
-            new_bound = tuple(lst)
-            pygame.draw.line(game_display, self.color, self.get_cord_start(), new_bound)
+            bound = self.last_3_bounds[0]
+            pygame.draw.line(game_display, self.color, self.get_cord_start(), bound)
 
     def move(self, coordinate):
         """move sensor.
@@ -98,3 +93,10 @@ class Sensor:
 
     def calc_y_by_radius(self, radius):
         return round(self.y_pos_start + sin(radians(self.angle)) * radius)
+
+    def add_last_bound(self, dest):
+        temp1 = self.last_3_bounds[1]
+        temp2 = self.last_3_bounds[2]
+        self.last_3_bounds[0] = temp1
+        self.last_3_bounds[1] = temp2
+        self.last_3_bounds[2] = dest
