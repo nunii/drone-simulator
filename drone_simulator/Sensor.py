@@ -46,29 +46,35 @@ class Sensor:
         :rtype: tuple or string
         """
         # check if x and y in the maze bounds.
-        if maze.get_height() < round(self.x_pos_start * self.radius) \
-                or maze.get_width() < round(self.y_pos_start * self.radius):
-            self.last_bound = maze.get_height(), maze.get_width()
+        # if maze.get_height() < round(self.x_pos_start * self.radius) \
+        #        or maze.get_width() < round(self.y_pos_start * self.radius):
+        #    self.last_bound = maze.get_height(), maze.get_width()
 
         # check if a sensor meet a bounds.
         for dest in self.get_range():
-            print(dest)
             if maze.get_at(dest) == self.bounds_color:
-                print("bound")
                 self.last_bound = dest
                 return self.last_bound
         return inf
 
-    def draw(self, game_display):
+    def draw(self, maze, game_display):
         """draw Lidar over the screen.
 
         :param game_display: a pygame surface (screen).
         :return:
         """
-        if type(self.last_bound) is not tuple:
-            pygame.draw.line(game_display, self.color, self.get_cord_start(), self.last_bound)
-        else:
+        if self.check_bounds(maze) == () or not type(self.check_bounds(maze)) is tuple:
+            print("no bounds")
             pygame.draw.line(game_display, self.color, self.get_cord_start(), self.get_cord_end())
+        else:
+            # edit the lidar beam length
+            bound = self.check_bounds(maze)
+            print(bound)
+            lst = list(bound)
+            lst[0] -= 3
+            lst[1] -= 3
+            new_bound = tuple(lst)
+            pygame.draw.line(game_display, self.color, self.get_cord_start(), new_bound)
 
     def move(self, coordinate):
         """move sensor.

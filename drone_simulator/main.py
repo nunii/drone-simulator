@@ -23,12 +23,12 @@ def main():
     # initialize Drone
     game_display = Board(width=window_width, height=window_height, color=Colors.white, borders_color=Colors.black)
     # start position
-    x = 50
-    y = 70
+    x = 80
+    y = 40
     # initialize Sensors
-    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=20, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
     drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
@@ -51,7 +51,7 @@ def main():
         pygame.display.update()
         # update layers over screen.
         pygame.display.flip()
-        clock.tick(10)
+        clock.tick(25)
 
 
 if __name__ == "__main__":
