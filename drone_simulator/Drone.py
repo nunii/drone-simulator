@@ -17,11 +17,9 @@ class Drone:
         self.mode = self.state.GROUND
         self.speed = 0
         self.acc = 0
-
         self.time_in_air = 0
         self.error_case = 0
         self.score = 0
-
         self.radius = 3
         self.x_position = start_x
         self.y_position = start_y
@@ -33,14 +31,13 @@ class Drone:
 
     def rotate(self, maze, direction):
         """
-
+        rotate the drone.
         :param direction:
         :param maze:
         :return:
         """
 
         self.yaw += direction * self.speed
-
         if self.yaw >= 360:
             self.yaw = self.yaw % 360
         elif self.yaw < 0:
@@ -51,8 +48,7 @@ class Drone:
             lidar.draw(maze=maze, game_display=self.game_display.get_screen())
 
     def get_position(self):
-        """
-        get drone coordinates.
+        """get drone coordinates.
 
         :return: a coordinates of the drone.
         :rtype: tuple. (x_position, y_position)
@@ -60,8 +56,7 @@ class Drone:
         return round(self.x_position), round(self.y_position)
 
     def check_bounds(self, maze, game_display):
-        """
-        check if the drone get to bounds.
+        """check if the drone get to bounds.
 
         :param game_display: a screen object.
         :param maze: a background maze.
@@ -75,7 +70,6 @@ class Drone:
             if type(lidar_info) is tuple:
                 # draw a bounds.
                 self.draw_bounds(game_display=game_display, coordination=lidar_info)
-               # lidar.cut_line_range(game_display=game_display, coordination=li)
 
         if maze.get_at((int(self.x_position), int(self.y_position))) == self.bounds_color:
             self.error_case += 1
@@ -121,6 +115,16 @@ class Drone:
         # update odometer position.
         self.change_lidars_positions(maze=maze, game_display=game_display)
 
+    def auto_move(self, game_display, maze):
+        self.speed = 1 #if self.speed < 3 else 0
+        self.move(maze=maze, game_display=game_display)
+        self.check_bounds(maze=maze, game_display=game_display)
+        #for lidar in self.lidars:
+        lidar = self.lidars[0]
+        #if not lidar.check_bounds(maze) == () or not type(lidar.check_bounds(maze)) is tuple:
+        self.rotate(maze=maze, direction=-1)
+        self.check_bounds(maze=maze, game_display=game_display)
+
     def handle_keys(self, maze, game_display, key):
         """
         handle keys, move a drone by the pressed key.
@@ -129,6 +133,8 @@ class Drone:
         :rtype: boolean
         """
         # if left key pressed, go left.
+        if key[pygame.K_a]:
+            self.auto_move(maze=maze, game_display=game_display)
         if key[pygame.K_LEFT]:
             self.rotate(maze=maze, direction=-1)
             self.check_bounds(maze=maze, game_display=game_display)

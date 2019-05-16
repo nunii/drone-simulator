@@ -7,6 +7,7 @@ class Sensor:
 
     def __init__(self, start_x, start_y, angle, radius, color, bounds_color):
         self.color = color
+        # maze bounds color.
         self.bounds_color = bounds_color
         self.x_pos_start = start_x
         self.y_pos_start = start_y
@@ -15,8 +16,11 @@ class Sensor:
             angle = 360 + angle
 
         self.angle = angle
+        # lidar beam length
         self.radius = radius
+        # tuple for the last (X,Y) of the bound point seen.
         self.last_bound = tuple()
+        # list for the last 3 (X,Y) of the bound points seen.
         self.last_3_bounds = [0, 0, 0]
 
     def add_angle(self, angle):
@@ -50,6 +54,7 @@ class Sensor:
         # check if a sensor meet a bounds.
         for dest in self.get_range():
             if maze.get_at(dest) == self.bounds_color:
+                print(dest)
                 self.last_bound = dest
                 self.add_last_bound(dest)
                 return self.last_bound
@@ -67,8 +72,8 @@ class Sensor:
             pygame.draw.line(game_display, self.color, self.get_cord_start(), self.get_cord_end())
         else:
             # edit the lidar beam length
-            bound = self.check_bounds(maze)
-            bound = self.last_3_bounds[0]
+            bound = self.check_bounds(maze)  # This line is for updating last_3_bounds.
+            bound = self.last_3_bounds[0]  # Get
             pygame.draw.line(game_display, self.color, self.get_cord_start(), bound)
 
     def move(self, coordinate):
@@ -95,6 +100,11 @@ class Sensor:
         return round(self.y_pos_start + sin(radians(self.angle)) * radius)
 
     def add_last_bound(self, dest):
+        """
+        short code for implementing a Queue list.
+        :param dest:
+        :return:
+        """
         temp1 = self.last_3_bounds[1]
         temp2 = self.last_3_bounds[2]
         self.last_3_bounds[0] = temp1
