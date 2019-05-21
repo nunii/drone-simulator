@@ -22,6 +22,7 @@ class Sensor:
         self.last_bound = tuple()
         # list for the last 3 (X,Y) of the bound points seen.
         self.last_3_bounds = [0, 0, 0]
+        self.detected_list = []
 
     def add_angle(self, angle):
         self.angle += angle
@@ -50,13 +51,14 @@ class Sensor:
         :return: coordinates of the observed bounds (or wall).
         :rtype: tuple or string
         """
-
+        self.detected_list = self.get_range()
+        self.last_bound = inf
         # check if a sensor meet a bounds.
-        for dest in self.get_range():
+        for idx, dest in enumerate(self.detected_list):
             if maze.get_at(dest) == self.bounds_color:
-                print(dest)
-                self.last_bound = dest
-                self.add_last_bound(dest)
+                self.last_bound = self.detected_list[idx]
+                self.detected_list = self.detected_list[:idx]
+                print(len(self.detected_list))
                 return self.last_bound
         return inf
 
@@ -67,14 +69,14 @@ class Sensor:
         :param maze:
         :return:
         """
-        if self.check_bounds(maze) == () or not type(self.check_bounds(maze)) is tuple:
-            print("no bounds")
+        bound = self.check_bounds(maze)
+        if self.check_bounds(maze) == () or not type(bound) is tuple:
             pygame.draw.line(game_display, self.color, self.get_cord_start(), self.get_cord_end())
         else:
             # edit the lidar beam length
-            bound = self.check_bounds(maze)  # This line is for updating last_3_bounds.
-            bound = self.last_3_bounds[0]  # Get
-            pygame.draw.line(game_display, self.color, self.get_cord_start(), bound)
+            wall = self.detected_list[-1] if len(self.detected_list) >= 1 else self.get_cord_start()
+            print(wall)
+            pygame.draw.line(game_display, self.color, self.get_cord_start(), wall)
 
     def move(self, coordinate):
         """move sensor.
