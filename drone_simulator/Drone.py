@@ -124,7 +124,7 @@ class Drone:
         """
         self.speed = 1  # if self.speed < 3 else 0
         # activate first algorithm
-        self.first_algorithm(maze=maze, game_display=game_display)
+        self.second_algorithm(maze=maze, game_display=game_display)
 
     def first_algorithm(self, maze, game_display):
         """
@@ -141,10 +141,11 @@ class Drone:
         # if x <= 0 : direction will be -1.  else direction is 1
         x = -1 if x <= -0.6 else 1
         self.move(maze=maze, game_display=game_display) if not self.crashed(maze) else None
-        # if met a bound at range "distance_from_wall.
+        # if met a bound at range "distance_from_wall".
         while self.met_a_bound(maze=maze, distance_from_wall=10):
             self.rotate(maze=maze, direction=x)
         self.check_bounds(maze=maze, game_display=game_display)
+
     def second_algorithm(self, maze, game_display):
         """
         The second Algroithm:
@@ -160,10 +161,21 @@ class Drone:
         # if x <= 0 : direction will be -1.  else direction is 1
         x = -1 if x <= 0 else 1
         self.move(maze=maze, game_display=game_display) if not self.crashed(maze) else None
-        # if met a bound at range "distance_from_wall.
-        while self.met_a_bound(maze=maze, distance_from_wall=10):
-            # need to add the 1.1 and 1.2 here --------------------------
-            self.rotate(maze=maze, direction=x)
+        while True:
+            # if not met a bound at range "distance_from_wall.
+            if self.met_a_bound(maze=maze, distance_from_wall=10):
+                self.rotate(maze=maze, direction=x)
+            # move to the direction of the longest lidar beam.
+            else:
+                angle = self.get_longest_lidar_angle()
+                if self.lidars[0].angle - angle < 0:
+                    direction = -1
+                else:
+                    direction = 0
+                for _ in range(self.lidars[0].angle - angle):
+                    self.rotate(maze=maze, direction=direction)
+                break
+
         self.check_bounds(maze=maze, game_display=game_display)
 
     def handle_keys(self, maze, game_display, key):
@@ -215,7 +227,7 @@ class Drone:
 
     def crashed(self, maze):
         """
-        if dron has crashed to wall
+        if drone has crashed to wall
         :param maze:
         :return:
         """
@@ -223,3 +235,12 @@ class Drone:
             print("crashed into a wall")
             return True
         return False
+
+    def get_longest_lidar_angle(self):
+        longest_lidar_angle = 0
+        max_beam = 0
+        for lidar in self.lidars:
+            if len(lidar.detected_list) > max_beam:
+                max_beam = len(lidar.detected_list)
+                longest_lidar_angle = lidar.angle
+        return longest_lidar_angle

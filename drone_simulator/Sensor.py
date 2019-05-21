@@ -23,6 +23,7 @@ class Sensor:
         # list for the last 3 (X,Y) of the bound points seen.
         self.last_3_bounds = [0, 0, 0]
         self.detected_list = []
+        # self.detected_list_length = 0
 
     def add_angle(self, angle):
         self.angle += angle
@@ -58,13 +59,14 @@ class Sensor:
             if maze.get_at(dest) == self.bounds_color:
                 self.last_bound = self.detected_list[idx]
                 self.detected_list = self.detected_list[:idx]
+                # self.detected_list_length = len(self.detected_list)
                 print(len(self.detected_list))
                 return self.last_bound
         return inf
 
     def draw(self, maze, game_display):
-        """draw Lidar over the screen.
-
+        """
+        draw Lidar over the screen.
         :param game_display: a pygame surface (screen).
         :param maze:
         :return:

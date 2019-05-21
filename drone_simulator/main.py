@@ -5,8 +5,6 @@ from drone_simulator import Sensor
 import pygame
 import os
 
-#import sys
-#sys.setrecursionlimit(100000)  # need to delete this and fix the recursion.
 
 # project root path.
 root_path = os.path.dirname(os.path.dirname(__file__))
