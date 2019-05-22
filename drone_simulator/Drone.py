@@ -9,7 +9,7 @@ class Drone:
     MAX_SPEED = 3  # meter / sec
     MAX_YAW_SPEED = 180  # deg/sec  (aka  1.0 PI)
     Max_FLIGHT_TIME = 60 * 5  # 5 Minute
-    DT = 1.0/50  # ms ==> 50Hz
+    DT = 1.0 / 50  # ms ==> 50Hz
 
     def __init__(self, start_x, start_y, color, bounds_color, lidars, game_display):
         self.state = DroneState
@@ -44,7 +44,7 @@ class Drone:
             self.yaw = 360 + self.yaw
 
         for lidar in self.lidars:
-            lidar.add_angle(direction*self.speed)
+            lidar.add_angle(direction * self.speed)
             lidar.draw(maze=maze, game_display=self.game_display.get_screen())
 
     def get_position(self):
@@ -156,27 +156,19 @@ class Drone:
         :param game_display:
         :return:
         """
-        # generate a number between -1 to 1
-        x = random.uniform(-1, 1)
-        # if x <= 0 : direction will be -1.  else direction is 1
-        x = -1 if x <= 0 else 1
-        self.move(maze=maze, game_display=game_display) if not self.crashed(maze) else None
-        while True:
-            # if not met a bound at range "distance_from_wall.
-            if self.met_a_bound(maze=maze, distance_from_wall=10):
-                self.rotate(maze=maze, direction=x)
-            # move to the direction of the longest lidar beam.
-            else:
-                angle = self.get_longest_lidar_angle()
-                if self.lidars[0].angle - angle < 0:
-                    direction = -1
-                else:
-                    direction = 0
-                for _ in range(self.lidars[0].angle - angle):
-                    self.rotate(maze=maze, direction=direction)
-                break
-
         self.check_bounds(maze=maze, game_display=game_display)
+        # if not met a bound at range "distance_from_wall.
+        if self.met_a_bound(maze=maze, distance_from_wall=10):
+            print("met a bound")
+            angle = self.get_max_prob()
+            diff_angle = abs(angle - self.lidars[0].angle) % 360
+            direction = 1 if (angle - self.lidars[0].angle) % 360 < 180 else -1
+            for _ in range(diff_angle):
+                print("rotating")
+                self.rotate(maze=maze, direction=direction)
+        # move to the direction of the longest lidar beam.
+        print("moving")
+        self.move(maze=maze, game_display=game_display) if not self.crashed(maze) else None
 
     def handle_keys(self, maze, game_display, key):
         """
@@ -219,10 +211,11 @@ class Drone:
         :return: bool
         :rtype: bool
         """
-        for lidar in self.lidars:
-            lst = lidar.get_range()
-            if maze.get_at(lst[-1 * distance_from_wall]) == lidar.bounds_color:
-                return True
+        # for lidar in self.lidars:
+        # lst = lidar.get_range()
+        lst = self.lidars[0].get_range()
+        if maze.get_at(lst[-1 * distance_from_wall]) == self.lidars[0].bounds_color:
+            return True
         return False
 
     def crashed(self, maze):
@@ -231,16 +224,30 @@ class Drone:
         :param maze:
         :return:
         """
-        if maze.get_at(self.get_position()) == self.bounds_color:
+        x, y = self.get_position()
+        x += self.speed * self.calc_x()
+        y += self.speed * self.calc_y()
+        if maze.get_at((round(x), round(y))) == self.bounds_color:
             print("crashed into a wall")
             return True
         return False
 
-    def get_longest_lidar_angle(self):
-        longest_lidar_angle = 0
-        max_beam = 0
-        for lidar in self.lidars:
-            if len(lidar.detected_list) > max_beam:
-                max_beam = len(lidar.detected_list)
-                longest_lidar_angle = lidar.angle
-        return longest_lidar_angle
+    def get_lidar_angles(self):
+        return [lidar.angle for lidar in self.lidars]
+
+    def get_lidar_detected_len(self):
+        return [len(lidar.detected_list) for lidar in self.lidars]
+
+    def get_max_prob(self):
+        choice = random.uniform(0, 1)
+        angles = self.get_lidar_angles()
+        radius = self.get_lidar_detected_len()
+        max_radius = radius.index(max(radius))
+        radius.pop(max_radius)
+        sec_max = radius.index(max(radius))
+        return angles[max_radius] if abs(max_radius - sec_max) < 15 and choice < 0.3 else angles[sec_max]
+
+    def __str__(self):
+        return "Y: {yaw}, S:{speed}, lidar[ L:{left} R:{right} H:{head} ], Crashed:{crash}, Score:{score}"\
+            .format(yaw=self.yaw, speed=self.speed, left=self.lidars[2], right=self.lidars[1],
+                    head=self.lidars[0], crash=self.error_case, score=self.score)

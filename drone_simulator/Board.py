@@ -70,3 +70,12 @@ class Board:
                     elif event.key == pygame.K_c:
                         self.clean()
                         return True
+
+    def put_text(self, obj):
+        pygame.font.init()  # you have to call this at the start,
+
+        myfont = pygame.font.SysFont('Comic Sans MS', 20)
+        text = myfont.render(print(obj), False, (50, 50, 50))
+        self.GAME_display.blit(text, (10, self.height / 2 + 50))
+
+        pygame.display.update()

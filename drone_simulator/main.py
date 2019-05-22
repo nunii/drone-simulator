@@ -48,6 +48,7 @@ def main():
         # update screen display.
         pygame.display.update()
         # update layers over screen.
+        game_display.put_text(obj=drone)
         pygame.display.flip()
         clock.tick(25)
 

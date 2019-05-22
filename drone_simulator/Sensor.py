@@ -114,3 +114,7 @@ class Sensor:
         self.last_3_bounds[0] = temp1
         self.last_3_bounds[1] = temp2
         self.last_3_bounds[2] = dest
+
+    def __str__(self):
+        list_len = len(self.detected_list)
+        return str(list_len) if list_len < 3 else "Infinity"
