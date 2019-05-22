@@ -251,3 +251,6 @@ class Drone:
         return "Y: {yaw}, S:{speed}, lidar[ L:{left} R:{right} H:{head} ], Crashed:{crash}, Score:{score}"\
             .format(yaw=self.yaw, speed=self.speed, left=self.lidars[2], right=self.lidars[1],
                     head=self.lidars[0], crash=self.error_case, score=self.score)
+
+    def get_info_list(self):
+        return [self.yaw, self.speed, self.lidars[2], self.lidars[1], self.lidars[0], self.error_case, self.score]

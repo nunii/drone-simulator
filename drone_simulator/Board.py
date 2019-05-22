@@ -6,15 +6,24 @@ import pygame
 class Board:
     def __init__(self, width, height, color, borders_color):
         pygame.init()
+        pygame.font.init()
+        self.GAME_display = pygame.display.set_mode((width + 20, height + 20))
         pygame.display.set_caption('Drone Simulator')
         self.color = color
         self.borders_color = borders_color
-        self.GAME_display = pygame.display.set_mode((width + 20, height + 20))
+
         self.clean()
         self.borders(width, height)
         self.game_score = 0
         self.width = width
         self.height = height
+
+        self.font = pygame.font.SysFont('Comic Sans MS', 20)
+        self.out_string = "Y: {yaw}, S:{speed}, lidar[ L:{left} R:{right} H:{head} ], Crashed:{crash}, Score:{score}" \
+            .format(yaw=0, speed=0, left=0, right=0, head=0, crash=0, score=0)
+        self.text = self.font.render(self.out_string, False, (50, 50, 50))
+        self.GAME_display.blit(self.text, (10, self.height / 2 + 50))
+        pygame.display.update()
 
     def clean(self):
         self.GAME_display.fill(self.color)
@@ -46,36 +55,23 @@ class Board:
         pygame.quit()
         quit()
 
-    def pop_exit_window(self):
-        pygame.font.init()  # you have to call this at the start,
-        from drone_simulator import Colors
-        myfont = pygame.font.SysFont('Comic Sans MS', 20)
-        text = myfont.render('To restart press C, Exit press X', False, (50, 50, 50))
-        text2 = myfont.render('Your final score is: %d ' % tuple([self.game_score]), False, Colors.red)
-        self.GAME_display.blit(text, (10, self.height / 2 + 50))
-        self.GAME_display.blit(text2, (self.width / 2 - 60, self.height / 2))
-        pygame.display.update()
+    # def put_text(self):
+        # pygame.font.init()  # you have to call this at the start,
+        # text = self.font.render(str(obj), False, (50, 50, 50))
+        # out_string = "Y: {yaw}, S:{speed}, lidar[ L:{left} R:{right} H:{head} ], Crashed:{crash}, Score:{score}"
+        # self.GAME_display.blit(text, (10, self.height / 2 + 50))
+        # pygame.display.update()
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    # quit()
-                    return False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_x:
-                        pygame.quit()
-                        # quit()
-                        return False
-                    elif event.key == pygame.K_c:
-                        self.clean()
-                        return True
+    def update_text(self, lst):
+        # pygame.font.init()  # you have to call this at the start,
+        pygame.draw.rect(self.GAME_display, [255, 255, 0], [50, 350, 0, 30], 100)
+        self.out_string = "Y: {yaw}, S:{speed}, lidar[ L:{left} R:{right} H:{head} ], Crashed:{crash}, Score:{score}"\
+            .format(yaw=lst[0], speed=lst[1], left=lst[2], right=lst[3],
+                    head=lst[4], crash=lst[5], score=lst[6])
+        self.text = self.font.render(self.out_string, False, (50, 50, 50))
+        self.GAME_display.blit(self.text, (10, self.height / 2 + 50))
+        # pygame.display.update()
 
-    def put_text(self, obj):
-        pygame.font.init()  # you have to call this at the start,
 
-        myfont = pygame.font.SysFont('Comic Sans MS', 20)
-        text = myfont.render(print(obj), False, (50, 50, 50))
-        self.GAME_display.blit(text, (10, self.height / 2 + 50))
 
-        pygame.display.update()
+

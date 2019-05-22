@@ -32,7 +32,7 @@ def main():
     drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
     # read maze image.
     maze = pygame.image.load(os.path.join(root_path, 'mazes', 'p11.png'))
-
+    # game_display.put_text()
     while True:  # while the program runs.
         # get events and handle.
         for event in pygame.event.get():
@@ -46,9 +46,9 @@ def main():
         # draw the drone over the screen.
         drone.draw(game_display=game_display.get_screen())
         # update screen display.
-        pygame.display.update()
+        # pygame.display.update()
         # update layers over screen.
-        game_display.put_text(obj=drone)
+        game_display.update_text(drone.get_info_list())
         pygame.display.flip()
         clock.tick(25)
 
