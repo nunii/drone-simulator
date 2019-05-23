@@ -228,6 +228,7 @@ class Drone:
         x += self.speed * self.calc_x()
         y += self.speed * self.calc_y()
         if maze.get_at((round(x), round(y))) == self.bounds_color:
+            self.error_case += 1
             print("crashed into a wall")
             return True
         return False

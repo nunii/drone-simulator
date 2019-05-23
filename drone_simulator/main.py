@@ -18,6 +18,7 @@ def main():
     img_path = root_path + "/mazes/"
     img = Image.open(img_path+'p11.png')
     window_width, window_height = img.size
+    window_height += 30
     # initialize Drone
     game_display = Board(width=window_width, height=window_height, color=Colors.white, borders_color=Colors.black)
     # start position
@@ -45,10 +46,10 @@ def main():
         drone.handle_keys(maze=maze, game_display=game_display.get_screen(), key=key)
         # draw the drone over the screen.
         drone.draw(game_display=game_display.get_screen())
-        # update screen display.
-        # pygame.display.update()
         # update layers over screen.
         game_display.update_text(drone.get_info_list())
+        # update screen display.
+        pygame.display.update()
         pygame.display.flip()
         clock.tick(25)
 

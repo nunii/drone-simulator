@@ -1,6 +1,7 @@
 class Colors:
     d_white = (250, 250, 250)
     blue_black = (50, 50, 50)
+    blue = (0, 0, 255)
     white = (255, 255, 255)
     black = (0, 0, 0)
     maze_black = (0, 0, 0, 255)
