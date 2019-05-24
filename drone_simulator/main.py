@@ -2,6 +2,7 @@ from drone_simulator import Drone
 from drone_simulator import Board
 from drone_simulator import Colors
 from drone_simulator import Sensor
+from PIL import Image
 import pygame
 import os
 
@@ -14,9 +15,9 @@ def main():
     # initialize
     clock = pygame.time.Clock()
     # windows size by taking the image and get the height/width
-    from PIL import Image
     img_path = root_path + "/mazes/"
-    img = Image.open(img_path+'p11.png')
+    maze_name = 'p12.png'
+    img = Image.open(img_path + maze_name)
     window_width, window_height = img.size
     window_height += 30
     # initialize Drone
@@ -32,25 +33,28 @@ def main():
     # initialize Drone
     drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
     # read maze image.
-    maze = pygame.image.load(os.path.join(root_path, 'mazes', 'p11.png'))
+    maze = pygame.image.load(os.path.join(root_path, 'mazes', maze_name))
+    maze_flag = False
+    last_background = None
     # game_display.put_text()
     while True:  # while the program runs.
         # get events and handle.
-        for event in pygame.event.get():
-            # if clicked on the window's X.
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
+        event = [e.type for e in pygame.event.get()]
+        # if clicked on the window's X.
+        if pygame.QUIT in event:
+            game_display.close()
+            break
         # drone keys handle. (move the drone while keys pressed)
         key = pygame.key.get_pressed()
         drone.handle_keys(maze=maze, game_display=game_display.get_screen(), key=key)
         # draw the drone over the screen.
         drone.draw(game_display=game_display.get_screen())
         # update layers over screen.
-        game_display.update_text(drone.get_info_list())
+        game_display.update_text(drone.get_info_dict())
         # update screen display.
         pygame.display.update()
         pygame.display.flip()
+        game_display.time += 1/25
         clock.tick(25)
 
 

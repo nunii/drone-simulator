@@ -23,7 +23,6 @@ class Sensor:
         # list for the last 3 (X,Y) of the bound points seen.
         self.last_3_bounds = [0, 0, 0]
         self.detected_list = []
-        # self.detected_list_length = 0
 
     def add_angle(self, angle):
         self.angle += angle
@@ -50,7 +49,7 @@ class Sensor:
 
         :param maze: a background maze.
         :return: coordinates of the observed bounds (or wall).
-        :rtype: tuple or string
+        :rtype: tuple or inf
         """
         self.detected_list = self.get_range()
         self.last_bound = inf
@@ -60,7 +59,6 @@ class Sensor:
                 self.last_bound = self.detected_list[idx]
                 self.detected_list = self.detected_list[:idx]
                 # self.detected_list_length = len(self.detected_list)
-                print(len(self.detected_list))
                 return self.last_bound
         return inf
 
@@ -77,7 +75,6 @@ class Sensor:
         else:
             # edit the lidar beam length
             wall = self.detected_list[-1] if len(self.detected_list) >= 1 else self.get_cord_start()
-            print(wall)
             pygame.draw.line(game_display, self.color, self.get_cord_start(), wall)
 
     def move(self, coordinate):
@@ -117,4 +114,4 @@ class Sensor:
 
     def __str__(self):
         list_len = len(self.detected_list)
-        return str(list_len) if list_len < 3 else "Infinity"
+        return str(list_len) if list_len < self.radius else "Infinity"
