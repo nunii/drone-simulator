@@ -50,8 +50,7 @@ class Board:
         pygame.display.update()
 
     def get_screen(self):
-        """
-        get game screen.
+        """get game screen.
 
         :return: a game screen.
         :rtype: a pygame screen object.
@@ -67,14 +66,15 @@ class Board:
     def update_text(self, dic):
         pygame.draw.rect(self.GAME_display, Colors.white, pygame.Rect(20, 10, self.text.get_width(),
                                                                       self.text.get_height()))
-        self.text = self.font.render(self.info.format(yaw=dic['yaw'],
-                                                      speed=dic['speed'],
-                                                      left=dic['left'],
-                                                      right=dic['right'],
-                                                      head=dic['head'],
-                                                      crash=dic['crash'],
-                                                      score=dic['score'],
-                                                      time=str(timedelta(seconds=self.time)).split('.')[0],
-                                                      battery=dic['battery']),
-                                     True, self.font_color)
+        text = self.info.format(yaw=dic['yaw'],
+                                speed=dic['speed'],
+                                left=dic['left'],
+                                right=dic['right'],
+                                head=dic['head'],
+                                crash=dic['crash'],
+                                score=dic['score'],
+                                time=str(timedelta(seconds=self.time)).split('.')[0],
+                                battery=dic['battery'])
+        self.text = self.font.render(text, True, self.font_color)
+        print(text)
         self.GAME_display.blit(self.text, (20, 10))

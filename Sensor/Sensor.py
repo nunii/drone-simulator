@@ -21,7 +21,6 @@ class Sensor:
         # tuple for the last (X,Y) of the bound point seen.
         self.last_bound = tuple()
         # list for the last 3 (X,Y) of the bound points seen.
-        self.last_3_bounds = [0, 0, 0]
         self.detected_list = []
 
     def add_angle(self, angle):
@@ -63,10 +62,10 @@ class Sensor:
         return inf
 
     def draw(self, maze, game_display):
-        """
-        draw Lidar over the screen.
+        """draw Lidar over the screen.
+
         :param game_display: a pygame surface (screen).
-        :param maze:
+        :param maze: a background maze.
         :return:
         """
         bound = self.check_bounds(maze)
@@ -81,7 +80,6 @@ class Sensor:
         """move sensor.
 
         :param coordinate: a drone coordinate.
-        :return:
         """
         self.x_pos_start = coordinate[0]
         self.y_pos_start = coordinate[1]
@@ -89,28 +87,29 @@ class Sensor:
     def get_range(self):
         """generate x,y range from x start, y start to end.
 
-        :return:
+        :return: a range of points to check according to radius.
+        :rtype: list
         """
         return [(round(self.calc_x_by_radius(count)), round(self.calc_y_by_radius(count)))
                 for count in range(1, self.radius+1)]
 
     def calc_x_by_radius(self, radius):
+        """calculate the x end point of the lidar.
+
+        :param radius: a lidar radius.
+        :return: the end points.
+        :rtype: int
+        """
         return round(self.x_pos_start + cos(radians(self.angle)) * radius)
 
     def calc_y_by_radius(self, radius):
-        return round(self.y_pos_start + sin(radians(self.angle)) * radius)
+        """calculate the y end point of the lidar.
 
-    def add_last_bound(self, dest):
+        :param radius: a lidar radius.
+        :return: the end points.
+        :rtype: int
         """
-        short code for implementing a Queue list.
-        :param dest:
-        :return:
-        """
-        temp1 = self.last_3_bounds[1]
-        temp2 = self.last_3_bounds[2]
-        self.last_3_bounds[0] = temp1
-        self.last_3_bounds[1] = temp2
-        self.last_3_bounds[2] = dest
+        return round(self.y_pos_start + sin(radians(self.angle)) * radius)
 
     def __str__(self):
         list_len = len(self.detected_list)

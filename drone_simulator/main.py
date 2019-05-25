@@ -1,11 +1,10 @@
-from drone_simulator import Drone
+from Drone import DroneFactory
 from drone_simulator import Board
 from drone_simulator import Colors
-from drone_simulator import Sensor
+from Sensor import Sensor
 from PIL import Image
 import pygame
 import os
-
 
 # project root path.
 root_path = os.path.dirname(os.path.dirname(__file__))
@@ -24,19 +23,20 @@ def main():
     game_display = Board(width=window_width, height=window_height, color=Colors.white, borders_color=Colors.black)
     # start position
     x = 80
-    y = 40
+    y = 20
     # initialize Sensors
     lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
     lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
     lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
-    drone = Drone(start_x=x, start_y=x, color=Colors.teal, bounds_color=Colors.maze_black, lidars=lidars, game_display=game_display)
+    drone = DroneFactory.create_drone("SmartDrone")(start_x=x,
+                                                    start_y=x,
+                                                    color=Colors.teal,
+                                                    bounds_color=Colors.maze_black,
+                                                    lidars=lidars)
     # read maze image.
     maze = pygame.image.load(os.path.join(root_path, 'mazes', maze_name))
-    maze_flag = False
-    last_background = None
-    # game_display.put_text()
     while True:  # while the program runs.
         # get events and handle.
         event = [e.type for e in pygame.event.get()]
@@ -54,7 +54,7 @@ def main():
         # update screen display.
         pygame.display.update()
         pygame.display.flip()
-        game_display.time += 1/25
+        game_display.time += 1 / 25
         clock.tick(25)
 
 
