@@ -2,7 +2,7 @@ from Drone import Drone
 from Drone import DroneState
 from random import uniform
 import pygame
-import math
+from math import sqrt, pow
 
 
 class SmartDrone(Drone):
@@ -20,8 +20,7 @@ class SmartDrone(Drone):
         """
         Drone.__init__(self, start_x, start_y, color, bounds_color, lidars)
         self.auto_flag = False
-        self.stuck = False
-        self.last_cord = tuple
+        self.last_cord = start_x, start_y
 
     def auto_move(self, game_display, maze):
         """Implements of the algorithm:
@@ -34,24 +33,25 @@ class SmartDrone(Drone):
         :param game_display: a pygame surface (screen).
         """
         self.set_state()
-        if self.stuck:
-            for _ in range(160):
-                angle = self.get_max_angle()
-                diff_angle = (angle - self.lidars[0].angle) % 360
-                direction = 1 if diff_angle < 180 else -1
+        if self.time_in_air % 5 and self.is_stuck():
+            for _ in range(90):
+                direction = 1 if uniform(0, 1) > 0.3 else -1
                 self.rotate(maze=maze, direction=direction, game_display=game_display)
+            self.backward()
+
         # if not met a bound at range "distance_from_wall.
-        if self.is_met_a_bound(maze=maze, distance_from_wall=10):
+        elif self.is_met_a_bound(maze=maze, distance_from_wall=10):
             angle = self.get_max_angle()
             diff_angle = (angle - self.lidars[0].angle) % 360
             direction = 1 if diff_angle < 180 else -1
             if diff_angle == 0:
-                for _ in range(20):
+                for _ in range(30):
                     direction = 1 if uniform(0, 1) < 0.7 else -1
                     self.rotate(maze=maze, direction=direction, game_display=game_display)
             else:
-                for _ in range(int(diff_angle * 0.7)):
+                for _ in range(30):
                     self.rotate(maze=maze, direction=direction, game_display=game_display)
+
         else:
             # move to the direction of the longest lidar beam.
             self.move(maze=maze, game_display=game_display)
@@ -73,12 +73,12 @@ class SmartDrone(Drone):
         elif len(lidars_states) == 3:
             self.state = DroneState.FLY_FAST
             self.forward(acc=2)
-        elif len(self.lidars[0].detected_list) <= self.lidars[0].radius // 3:
+        elif len(self.lidars[0].detected_list) <= self.lidars[0].radius // 4:
             self.state = DroneState.MAJOR_BUMP
-            self.backward(acc=3)
+            self.backward(acc=2)
         elif len(lidars_states) == 1:
             self.state = DroneState.MINOR_BUMP
-            self.backward()
+            self.backward(acc=0.5)
         else:
             self.state = DroneState.FLY_SLOW
             self.forward()
@@ -89,16 +89,14 @@ class SmartDrone(Drone):
         :return: true if the drone moves, otherwise false.
         :rtype: bool
         """
-        # get position every 5 sec.
-        if self.time_in_air % 5 == 0:
-            self.last_cord = self.get_position()
-
         Drone.handle_keys(self, maze, game_display, key)
         if self.auto_flag:
             if self.state == DroneState.LAND and self.time_in_air > 0:
                 self.state = DroneState.TAKE_OFF
+            self.update_last_cord()
             self.auto_move(maze=maze, game_display=game_display)
         if key[pygame.K_a]:
+            self.update_last_cord()
             self.auto_move(maze=maze, game_display=game_display)
         if key[pygame.K_d] and self.time_in_air > 0:
             self.auto_flag = True
@@ -107,12 +105,16 @@ class SmartDrone(Drone):
             self.state = DroneState.LAND
         return False
 
+    def update_last_cord(self):
+        # get position every 30 sec.
+        if self.time_in_air % 5 == 0:
+            self.last_cord = self.get_position()
+
     def is_stuck(self):
         x1, y1 = self.get_position()
         x2, y2 = self.last_cord
-        expression = math.pow(x1-x2, 2) + math.pow(y1-y2, 2)
-        if round(math.sqrt(expression)) >= 5:
-            self.stuck = True
+        expression = sqrt(pow(x1-x2, 2) + pow(y1-y2, 2))
+        return round(expression) < self.radius // 2
 
     def is_met_a_bound(self, maze, distance_from_wall):
         """A function to check if met a bound at range "distance_from_wall"
@@ -123,19 +125,13 @@ class SmartDrone(Drone):
         :rtype: bool
         """
         # generate a number between -1 to 1
-        # x = random.uniform(0, 1)
-        # if x > 0.6:
-        for lidar in self.lidars:
-            if len(lidar.detected_list) < lidar.radius // 4:
+        if uniform(0, 1) > 0.65:
+            for lidar in self.lidars:
+                if len(lidar.detected_list) < lidar.radius // 2:
+                    return True
+        else:
+            if len(self.lidars[0].detected_list) < self.lidars[0].radius // 2:
                 return True
-
-                # lst = lidar.get_range()
-                # if maze.get_at(lst[-1 * distance_from_wall]) == self.lidars[0].bounds_color:
-                #     return True
-        # else:
-        #     lst = self.lidars[0].get_range()
-        #     if maze.get_at(lst[-1 * distance_from_wall]) == self.lidars[0].bounds_color:
-        #         return True
         return False
 
     def get_lidar_angles(self):
@@ -172,7 +168,7 @@ class SmartDrone(Drone):
         radius[max_radius_id] = -1
         # find second max id.
         sec_max_id = radius.index(max(radius))
-        if (max_radius == 30 or abs(max_radius - radius[sec_max_id]) > 10) and uniform(0, 1) < 0.7:
+        if (max_radius == 30 or abs(max_radius - radius[sec_max_id]) > 15) and uniform(0, 1) < 0.7:
             return angles[max_radius_id]
         else:
             return angles[sec_max_id]

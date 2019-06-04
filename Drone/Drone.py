@@ -161,7 +161,7 @@ class Drone:
         speed up the drone forward.
         """
         n_speed = self.speed + 0.2 * acc
-        self.speed = n_speed if n_speed < 3 else 3
+        self.speed = n_speed if n_speed < 2 else 2
 
     def backward(self, acc=1.):
         """

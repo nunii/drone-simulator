@@ -25,9 +25,9 @@ def main():
     x = 80
     y = 20
     # initialize Sensors
-    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
-    lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=30, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_head = Sensor(start_x=x, start_y=y, angle=0, radius=60, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_right = Sensor(start_x=x, start_y=y, angle=45, radius=60, color=Colors.red, bounds_color=Colors.maze_black)
+    lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=60, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
     drone = DroneFactory.create_drone("SmartDrone")(start_x=x,
