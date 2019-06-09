@@ -111,6 +111,14 @@ class Sensor:
         """
         return round(self.y_pos_start + sin(radians(self.angle)) * radius)
 
+    def get_sense(self):
+        """Get a distance from a wall.
+
+        :return: infinity if drone not sens a wall, distance from a wall otherwise.
+        :rtype: int or math.inf
+        """
+        return len(self.detected_list) if len(self.detected_list) < self.radius else inf
+
     def __str__(self):
         list_len = len(self.detected_list)
         return str(list_len) if list_len < self.radius else "Infinity"
