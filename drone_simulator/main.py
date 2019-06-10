@@ -30,11 +30,11 @@ def main():
     lidar_left = Sensor(start_x=x, start_y=y, angle=315, radius=60, color=Colors.red, bounds_color=Colors.maze_black)
     lidars = [lidar_head, lidar_right, lidar_left]
     # initialize Drone
-    drone = DroneFactory.create_drone("SmartDrone")(start_x=x,
-                                                    start_y=x,
-                                                    color=Colors.teal,
-                                                    bounds_color=Colors.maze_black,
-                                                    lidars=lidars)
+    drone = DroneFactory.create_drone("SmartDroneV2")(start_x=x,
+                                                      start_y=x,
+                                                      color=Colors.teal,
+                                                      bounds_color=Colors.maze_black,
+                                                      lidars=lidars)
     # read maze image.
     maze = pygame.image.load(os.path.join(root_path, 'mazes', maze_name))
     while True:  # while the program runs.

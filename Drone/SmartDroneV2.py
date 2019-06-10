@@ -1,5 +1,6 @@
 from Drone import Drone
 from Drone import DroneState
+from SLAMGraph import SLAMGraph
 import pygame
 from math import isinf
 from random import uniform
@@ -24,6 +25,7 @@ class SmartDroneV2(Drone):
         """
         Drone.__init__(self, start_x, start_y, color, bounds_color, lidars)
         self.auto_flag = False
+        self.slam = SLAMGraph()
 
     def handle_keys(self, maze, game_display, key):
         """handle keys, move a drone by the pressed key.
@@ -74,7 +76,7 @@ class SmartDroneV2(Drone):
         if isinf(self.lidars[0].get_sense()):
             self.forward(acc=2)
         elif self.lidars[0].get_sense() >= 2 * self.lidars[0].radius // 3:
-            self.forward()
+            self.backward(acc=0.5)
         elif self.lidars[0].get_sense() >= self.lidars[0].radius // 3:
             self.backward()
         else:
@@ -91,29 +93,35 @@ class SmartDroneV2(Drone):
         :param game_display:
         :return:
         """
-        if self.lidars[0].get_sense() >= self.lidars[0].radius // 3:
+        if self.lidars[0].get_sense() <= self.lidars[0].radius // 3:
             if uniform(0, 1) > 0.7:
                 self.rotate_right(angle=45, maze=maze, game_display=game_display)
             else:
                 self.rotate_left(angle=45, maze=maze, game_display=game_display)
         # fix to left.
-        if self.lidars[1]:
-            self.rotate_left(angle=20, maze=maze, game_display=game_display)
+        if self.lidars[1].get_sense() <= 2 * self.lidars[1].radius // 3:
+            self.rotate_left(angle=10, maze=maze, game_display=game_display)
         # fix to right.
-        if self.lidars[2]:
-            self.rotate_right(angle=20, maze=maze, game_display=game_display)
+        if self.lidars[2].get_sense() <= 2 * self.lidars[0].radius // 3:
+            self.rotate_right(angle=10, maze=maze, game_display=game_display)
 
     def rotate_right(self, angle, maze, game_display):
-        """
+        """rotate drone in some angle to the right.
 
+        :param angle: an angle to rotate.
+        :param maze: a background maze.
+        :param game_display: a pygame surface (screen).
         :return:
         """
         for _ in range(angle):
             self.rotate(maze=maze, direction=1, game_display=game_display)
 
     def rotate_left(self, angle, maze, game_display):
-        """
+        """rotate drone in some angle to the left.
 
+        :param angle: an angle to rotate.
+        :param maze: a background maze.
+        :param game_display: a pygame surface (screen).
         :return:
         """
         for _ in range(angle):
