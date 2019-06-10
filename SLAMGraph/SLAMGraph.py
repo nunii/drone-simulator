@@ -58,5 +58,9 @@ class SLAMGraph:
 
     def show(self):
         """show graph."""
-        nx.draw(self.graph)
+        pos = nx.spring_layout(self.graph)
+        nx.draw(self.graph, pos, node_color='b', node_size=250, font_size=16, with_labels=False)
+        for p in pos:  # raise text positions
+            pos[p][1] += 0.0015
+        nx.draw_networkx_labels(self.graph, pos)
         plt.show()

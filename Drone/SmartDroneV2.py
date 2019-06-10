@@ -26,6 +26,12 @@ class SmartDroneV2(Drone):
         Drone.__init__(self, start_x, start_y, color, bounds_color, lidars)
         self.auto_flag = False
         self.slam = SLAMGraph()
+        self.distance = 0
+        self.last_point_name = 'home'
+        self.slam.add_point(name=self.last_point_name, data={'angle': self.yaw,
+                                                             'duration': 0,
+                                                             'time': self.time_in_air})
+        self.last_check = self.lidars[0].radius if isinf(self.lidars[0].get_sense()) else self.lidars[0].get_sense()
 
     def handle_keys(self, maze, game_display, key):
         """handle keys, move a drone by the pressed key.
@@ -44,6 +50,8 @@ class SmartDroneV2(Drone):
             self.auto_flag = True
         if key[pygame.K_s]:
             self.state = DroneState.LAND
+        if key[pygame.K_w]:
+            self.slam.show()
         return False
 
     def auto_move(self, maze, game_display):
@@ -59,8 +67,36 @@ class SmartDroneV2(Drone):
         :param game_display:
         :return:
         """
+        self.is_interesting()
         self.rotates(maze=maze, game_display=game_display)
         self.move(game_display=game_display, maze=maze)
+        self.distance += self.speed
+
+    def get_duration(self, current_time):
+        """compute duration between current time and last time.
+
+        :param current_time: int, a current time in seconds.
+        :return: a duration since last time.
+        :rtype: int
+        """
+        return current_time - self.slam.get_data(node_name=self.last_point_name)['time']
+
+    def is_interesting(self):
+        """check if happens somethings interesting add it to SLAM graph."""
+        current_time = self.time_in_air
+        if self.last_point_name == 'home':
+            new_name = 'node 1'
+        else:
+            new_name = 'node {0}'.format(int(self.last_point_name.split()[1]) + 1)
+        new_sense = self.lidars[0].radius if isinf(self.lidars[0].get_sense()) else self.lidars[0].get_sense()
+
+        if abs(new_sense - self.last_check) >= 9 * self.lidars[0].radius / 10:
+            self.slam.add_point(name=new_name, data={'angle': self.yaw,
+                                                     'duration': self.get_duration(current_time=current_time),
+                                                     'time': current_time})
+            self.slam.add_edge(from_node=self.last_point_name, to_node=new_name, distance=self.distance)
+            self.distance = 0
+            self.last_point_name = new_name
 
     def move(self, game_display, maze):
         """move forward or backward.
